@@ -1,0 +1,63 @@
+import pandas
+import matplotlib.pyplot as plt
+personal_expenses=[]
+
+def add_expense(date,category,amount,description=""):
+    personal_expenses.append({"date":date,"category":category,"amount":amount,"description":description})
+
+def edit_expense(id_number,updated_info):
+    personal_expenses[id_number].update(updated_info)
+
+def delete_expense(id_number):
+    del personal_expenses[id_number]
+
+
+
+expenses=pandas.DataFrame(personal_expenses)
+expenses.to_csv("Expenses.csv")
+
+
+def total_spending_over_period(start_date,end_date):
+    total_expense=0
+    for expense in personal_expenses:
+        if start_date<=expense["date"]<=end_date:
+            total_expense+=expense["amount"]
+    return total_expense
+
+def spending_per_category(expenses):
+    category_spending={}
+    for expense in expenses:
+        category=expense["category"]
+        category_spending[category]=category_spending.get(category,0)+expense["amount"]
+    return category_spending
+
+print(spending_per_category(personal_expenses))
+
+
+def highest_spending_category(expenses):
+    category_wise_total=spending_per_category(expenses)
+    highest_category=max(category_wise_total)
+    return highest_category, category_wise_total[highest_category]
+
+print(highest_spending_category(personal_expenses))
+
+def get_recurring_expenses(expenses):
+    recurring_expenses = {}
+    for expense in expenses:
+        if expense["description"]:
+            recurring_expenses[expense["description"]] = recurring_expenses.get(expense["description"],0)+1
+    return recurring_expenses
+
+print(get_recurring_expenses(personal_expenses))
+
+
+def plot_of_spending_by_category(expenses):
+    category_totals =spending_per_category(expenses)
+    labels = category_totals.keys()
+    sizes = category_totals.values()
+
+    plt.pie(sizes, labels=labels)
+    plt.title('Spending by Category')
+    plt.show()
+
+plot_of_spending_by_category(personal_expenses)
