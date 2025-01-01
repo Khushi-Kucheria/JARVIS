@@ -1,0 +1,90 @@
+#PROBLEM 1
+
+import re
+text='''...'''
+pattern=\(\d{3}\) \d{3}-\d{4}|\d{3}-\d{3}-\d{4}
+phone_numbers=re.findall(pattern,text)
+print(phone_numbers)
+
+
+
+
+
+#PROBLEM 2
+
+import spacy
+nlp=spacy.load("en_core_web_sm")
+sentence="SpaCy is a powerful NLP library for tokenization."
+for token in sentence:
+  print(f"{token} | {token.isspace()}")
+
+
+
+
+
+#PROBLEM 3
+
+import spacy
+nlp=spacy.load("en_core_web_sm")
+
+@spacy.Language.component("token_count") 
+
+def token_count(doc):
+  print(f"Token count: {len(doc)}")
+  return doc
+
+nlp.add_pipe("token_count",last=True)
+sentence = "Customizing a SpaCy pipeline can be very useful."
+doc = nlp(sentence)
+
+
+
+
+
+#PROBLEM 4
+
+import spacy
+nlp=spacy.load("en_core_web_sm")
+doc=nlp("NLP is fascinating, and SpaCy makes it even more interesting.")
+
+for token in doc:
+  print(token , "|" , token.pos_ , "|" , token.dep_)
+
+
+
+
+
+#PROBLEM 5
+
+import spacy
+nlp=spacy.load("en_core_web_sm")
+doc=nlp("Elon Musk, the CEO of Tesla, was born on June 28, 1971, in Pretoria, South Africa.")
+
+for ent in doc.ents:
+  print(f"{ent.text} | {ent.label_} | {spacy.explain(ent.label_)}")
+
+
+
+
+
+#PROBLEM 6
+
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+
+text_corpus = "Data science is amazing", "Machine learning is part of data science"
+
+ohe=OneHotEncoder()
+words_in_text=[sentence.split() for sentence in text_corpus]
+all_words=[word for sentence in words_in_text for word in sentence ]
+print(ohe.fit_transform([[word] for word in all_words]).toarray())
+
+vectorizer=CountVectorizer()
+bag_of_words = vectorizer.fit_transform(text_corpus)
+print(vectorizer.get_feature_names_out())
+print(bag_of_words.toarray())
+
+tfidf_vectorizer = TfidfVectorizer()
+tfidf = tfidf_vectorizer.fit_transform(text_corpus)
+print(tfidf_vectorizer.get_feature_names_out())
+print(tfidf.toarray())
