@@ -1,0 +1,50 @@
+import pandas
+import joblib
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+
+df = pandas.read_csv('/content/drive/MyDrive/Dataset.csv', encoding='cp1252')    #(I added it to my drive for testing the code)
+
+count_vectorizer = CountVectorizer()
+x = count_vectorizer.fit_transform(df['Intent'])
+
+label_encoder = LabelEncoder()
+y = label_encoder.fit_transform(df['Intent'])
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+
+random_forest = RandomForestClassifier()
+random_forest.fit(x_train, y_train)
+accuracy = random_forest.score(x_test, y_test)
+print(f"Model accuracy: {accuracy}")
+
+joblib.dump(count_vectorizer, 'count_vectorizer.pkl')
+joblib.dump(label_encoder, 'label_encoder.pkl')
+joblib.dump(random_forest, 'random_forest.pkl')
+
+count_vectorizer = joblib.load('count_vectorizer.pkl')
+label_encoder = joblib.load('label_encoder.pkl')
+random_forest = joblib.load('random_forest.pkl')
+
+intents = {}
+for intent in df['Intent'].unique():
+    phrases = df[df['Intent'] == intent]['Speech'].tolist()
+    intents[intent] = phrases
+
+def classify_phrase(phrase):
+    phrase_vector = count_vectorizer.transform([phrase])
+    prediction = random_forest.predict(phrase_vector)
+    predicted_intent = label_encoder.inverse_transform(prediction)[0]
+    return predicted_intent
+
+while True:
+    user_input = input("Enter a phrase (or type 'exit' to quit): ")
+
+    if user_input.lower() == "exit":
+        print("Exiting JARVIS")
+        break
+
+    result = classify_phrase(user_input)
+    print(f"Predicted intent: {result}")
